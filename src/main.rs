@@ -47,7 +47,7 @@ fn execute_command(args: Cli) -> Result<(), Error> {
             provider,
             account_id,
             role,
-        }) => add_profile(config_file_manager, name, provider, account_id, role),
+        }) => add_profile(config_file_manager, name, provider, role, account_id),
         RootCommands::Profiles(ProfileCommands::Get { name }) => {
             get_profile(config_file_manager, name)
         }
