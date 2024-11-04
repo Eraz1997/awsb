@@ -1,0 +1,16 @@
+pub enum Error {
+    AWSCommandFailed,
+    AlreadyExists,
+    ClashingURL,
+    CouldNotCopyToClipboard,
+    CouldNotEditConfigFile,
+    CouldNotReadConfigFile,
+    HomeDirectoryNotFound,
+    InvalidAccountID,
+    InvalidItem,
+    InvalidName,
+    InvalidRegion,
+    InvalidUrl,
+    NotFound,
+    ProviderNotFound,
+}

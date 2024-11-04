@@ -12,16 +12,16 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum RootCommands {
     #[command(subcommand, about = "Manage SSO providers")]
-    Provider(ProviderCommands),
+    Providers(ProviderCommands),
     #[command(subcommand, about = "Manage AWS CLI profiles")]
-    Profile(ProfileCommands),
-    #[command(about = "Switch to a registered profile", )]
+    Profiles(ProfileCommands),
+    #[command(about = "Switch to a registered profile")]
     Use {
         #[arg(help = "The name of the profile to use")]
         name: String,
     },
-    #[command(about = "Set the shell environment variables for AWS authentication")]
-    SetEnvVars,
+    #[command(about = "Print the shell environment variables for AWS authentication")]
+    PrintEnvVars,
     #[command(about = "Copy the environment variables for AWS authentication to the clipboard")]
     CopyEnvVars,
 }
@@ -62,7 +62,11 @@ pub enum ProfileCommands {
     Add {
         #[arg(short, long, help = "An arbitrary name for the profile")]
         name: String,
-        #[arg(short, long, help = "The name of the SSO provider to use to authenticate")]
+        #[arg(
+            short,
+            long,
+            help = "The name of the SSO provider to use to authenticate"
+        )]
         provider: String,
         #[arg(short, long, help = "The ID of the AWS account to bind")]
         account_id: String,
