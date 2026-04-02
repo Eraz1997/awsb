@@ -81,13 +81,60 @@ impl ConfigFileManager {
         self.document.write(self.path.as_str()).ok()
     }
 
+    pub fn rename_provider(&mut self, name: String, new_name: String) -> Option<Provider> {
+        let provider = self.get_provider(&name)?;
+
+        let old_key = format!("sso-session {}", name);
+        let new_key = format!("sso-session {}", new_name);
+        self.document.remove_section(old_key.as_str());
+        self.document.set(
+            new_key.as_str(),
+            "sso_region",
+            provider.region.clone().into(),
+        );
+        self.document.set(
+            new_key.as_str(),
+            "sso_start_url",
+            provider.url.clone().into(),
+        );
+        self.document.set(
+            new_key.as_str(),
+            "sso_registration_scopes",
+            "sso:account:access".to_string().into(),
+        );
+
+        for profile_name in self.get_profile_names() {
+            let profile_key = format!("profile {}", profile_name);
+            if self
+                .document
+                .get(profile_key.as_str(), "sso_session")
+                .as_deref()
+                == Some(&name)
+            {
+                self.document
+                    .set(profile_key.as_str(), "sso_session", new_name.clone().into());
+            }
+        }
+
+        self.document.write(self.path.as_str()).ok()?;
+
+        Some(Provider {
+            name: new_name,
+            region: provider.region,
+            url: provider.url,
+        })
+    }
+
     pub fn get_profile_names(&self) -> Vec<String> {
-        self.document
+        let mut names: Vec<String> = self
+            .document
             .sections()
             .iter()
             .filter_map(|key| key.strip_prefix("profile "))
             .map(|name| name.to_string())
-            .collect()
+            .collect();
+        names.sort();
+        names
     }
 
     pub fn get_profile(&self, name: &String) -> Option<Profile> {
@@ -159,6 +206,14 @@ impl ConfigFileManager {
         let key = format!("profile {}", name);
         self.document.remove_section(key.as_str());
         self.document.write(self.path.as_str()).ok()
+    }
+
+    pub fn rename_profile(&mut self, name: String, new_name: String) -> Option<Profile> {
+        let profile = self.get_profile(&name)?;
+        let provider = self.get_provider(&profile.provider)?;
+
+        self.remove_profile(name)?;
+        self.add_profile(new_name, provider, profile.account_id, profile.role)
     }
 
     pub fn overwrite_default_profile(

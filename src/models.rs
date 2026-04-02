@@ -18,7 +18,7 @@ pub enum RootCommands {
     #[command(about = "Switch to a registered profile")]
     Use {
         #[arg(help = "The name of the profile to use")]
-        name: String,
+        name: Option<String>,
     },
     #[command(about = "Print the shell environment variables for AWS authentication")]
     PrintEnvVars,
@@ -48,6 +48,13 @@ pub enum ProviderCommands {
     Remove {
         #[arg(help = "The provider name")]
         name: String,
+    },
+    #[command(about = "Rename a provider")]
+    Rename {
+        #[arg(help = "The current provider name")]
+        name: String,
+        #[arg(help = "The new provider name")]
+        new_name: String,
     },
     #[command(about = "Sign-in and refresh the local AWS credentials")]
     SignIn {
@@ -84,5 +91,12 @@ pub enum ProfileCommands {
     Remove {
         #[arg(help = "The profile name")]
         name: String,
+    },
+    #[command(about = "Rename a profile")]
+    Rename {
+        #[arg(help = "The current profile name")]
+        name: String,
+        #[arg(help = "The new profile name")]
+        new_name: String,
     },
 }

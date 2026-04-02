@@ -20,13 +20,14 @@ awsb <COMMAND> <SUBCOMMAND> --help
 awsb <COMMAND> --help
 
 # Set profile as current
-awsb use <PROFILE_NAME>
+awsb use [PROFILE_NAME] # if you don't set PROFILE_NAME, an interactive search menu is shown
 
 # Manage SSO providers
 awsb providers add --name <NAME> --region <REGION> --url <URL>
 awsb providers list
 awsb providers get <NAME>
 awsb providers remove <NAME>
+awsb providers rename <NAME> <NEW_NAME>
 awsb providers sign-in
 
 # Manage profiles
@@ -34,6 +35,7 @@ awsb profiles add --name <NAME> --provider <PROVIDER> --account-id <ACCOUNT_ID> 
 awsb profiles list
 awsb profiles get <NAME>
 awsb profiles remove <NAME>
+awsb profiles rename <NAME> <NEW_NAME>
 
 # Get AWS access environment variables
 awsb print-env-vars

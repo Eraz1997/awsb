@@ -4,10 +4,12 @@ use crate::commands::profile::add::add_profile;
 use crate::commands::profile::get::get_profile;
 use crate::commands::profile::list::list_profiles;
 use crate::commands::profile::remove::remove_profile;
+use crate::commands::profile::rename::rename_profile;
 use crate::commands::provider::add::add_provider;
 use crate::commands::provider::get::get_provider;
 use crate::commands::provider::list::list_providers;
 use crate::commands::provider::remove::remove_provider;
+use crate::commands::provider::rename::rename_provider;
 use crate::commands::provider::sign_in::sign_in;
 use crate::commands::use_profile::use_profile;
 use crate::error::Error;
@@ -32,12 +34,15 @@ fn execute_command(args: Cli) -> Result<(), Error> {
         RootCommands::Providers(ProviderCommands::Get { name }) => {
             get_provider(config_file_manager, name)
         }
-        RootCommands::Providers(ProviderCommands::List {}) => {
+        RootCommands::Providers(ProviderCommands::List) => {
             list_providers(config_file_manager);
             Ok(())
         }
         RootCommands::Providers(ProviderCommands::Remove { name }) => {
             remove_provider(config_file_manager, name)
+        }
+        RootCommands::Providers(ProviderCommands::Rename { name, new_name }) => {
+            rename_provider(config_file_manager, name, new_name)
         }
         RootCommands::Providers(ProviderCommands::SignIn { name }) => {
             sign_in(config_file_manager, name)
@@ -51,16 +56,19 @@ fn execute_command(args: Cli) -> Result<(), Error> {
         RootCommands::Profiles(ProfileCommands::Get { name }) => {
             get_profile(config_file_manager, name)
         }
-        RootCommands::Profiles(ProfileCommands::List {}) => {
+        RootCommands::Profiles(ProfileCommands::List) => {
             list_profiles(config_file_manager);
             Ok(())
         }
         RootCommands::Profiles(ProfileCommands::Remove { name }) => {
             remove_profile(config_file_manager, name)
         }
+        RootCommands::Profiles(ProfileCommands::Rename { name, new_name }) => {
+            rename_profile(config_file_manager, name, new_name)
+        }
         RootCommands::Use { name } => use_profile(config_file_manager, name),
-        RootCommands::PrintEnvVars {} => print_env_vars(),
-        RootCommands::CopyEnvVars {} => copy_env_vars(),
+        RootCommands::PrintEnvVars => print_env_vars(),
+        RootCommands::CopyEnvVars => copy_env_vars(),
     }
 }
 
@@ -69,6 +77,7 @@ fn main() {
     if let Err(error) = execute_command(args) {
         let message = match error {
             Error::AWSCommandFailed => "AWS command failed.",
+            Error::Aborted => "Operation aborted.",
             Error::AlreadyExists => "Item already exists.",
             Error::ClashingURL => "URL is already in use.",
             Error::CouldNotCopyToClipboard => "Could not copy to clipboard.",

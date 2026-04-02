@@ -1,5 +1,6 @@
 pub enum Error {
     AWSCommandFailed,
+    Aborted,
     AlreadyExists,
     ClashingURL,
     CouldNotCopyToClipboard,
