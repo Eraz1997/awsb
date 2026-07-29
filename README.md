@@ -14,9 +14,9 @@ cargo install --git https://github.com/Eraz1997/awsb
 ## AI Skill 🤖
 
 ```shell
-mkdir -p ~/.config/opencode/skills/awsb
+mkdir -p ~/<path-to>/skills/awsb
 curl -fsSL https://raw.githubusercontent.com/Eraz1997/awsb/main/.opencode/skills/awsb/SKILL.md \
-  -o ~/.config/<agent>/skills/awsb/SKILL.md
+  -o ~/<path-to>/skills/awsb/SKILL.md
 ```
 
 Once installed, any agent will automatically use the skill when you ask it to switch AWS profiles, authenticate with SSO, or manage providers.
