@@ -17,7 +17,8 @@ description: Use when the user needs to authenticate to AWS, switch AWS profiles
 
 | Goal | Command |
 |---|---|
-| Switch active AWS profile / account | `awsb use [PROFILE_NAME]` |
+| Switch active AWS profile / account (default, human-driven) | `awsb use [PROFILE_NAME]` |
+| Use a profile in agent-driven sessions (no default change) | `AWS_PROFILE=<NAME>` + profile name from `awsb profiles list` |
 | Authenticate / refresh SSO credentials | `awsb providers sign-in [PROVIDER_NAME]` |
 | List all profiles | `awsb profiles list` |
 | List all providers | `awsb providers list` |
@@ -29,12 +30,31 @@ description: Use when the user needs to authenticate to AWS, switch AWS profiles
 | Describe a provider | `awsb providers get <NAME>` |
 | Remove a profile | `awsb profiles remove <NAME>` |
 | Remove a provider | `awsb providers remove <NAME>` |
-| Rename a profile | `awsb profiles rename <NAME> <NEW_NAME>` |
-| Rename a provider | `awsb providers rename <NAME> <NEW_NAME>` |
+| Edit a profile | `awsb profiles edit [NAME]` |
+| Edit a provider | `awsb providers edit [NAME]` |
+| Rename a profile | `awsb profiles rename [NAME] [NEW_NAME]` |
+| Rename a provider | `awsb providers rename [NAME] [NEW_NAME]` |
 
 ## Typical workflows
 
-### Switch to a different AWS account / profile
+### Agent-driven sessions: use `AWS_PROFILE` instead of `awsb use`
+
+When an agent needs to run AWS commands as a specific profile, do **not** use `awsb use <PROFILE_NAME>`: it rewrites the `[default]` section in `~/.aws/config`, which is a global change that can clobber the profile a human is actively using in a parallel session.
+
+Instead, set the `AWS_PROFILE` environment variable for the agent's child processes:
+
+```shell
+awsb profiles list  # find the profile name
+AWS_PROFILE=<PROFILE_NAME> aws sts get-caller-identity
+# or, to scope it to the whole session:
+export AWS_PROFILE=<PROFILE_NAME>
+```
+
+This selects the profile per-process only and leaves the user's `[default]` profile untouched.
+
+### Switch the default profile (interactive / human-driven)
+
+Use `awsb use` only when the *default* profile itself should change for the whole machine/session:
 
 1. List available profiles to find the right name:
    ```shell
@@ -61,9 +81,9 @@ description: Use when the user needs to authenticate to AWS, switch AWS profiles
    ```shell
    awsb profiles add --name <NAME> --provider <PROVIDER_NAME> --account-id <ACCOUNT_ID> --role <ROLE_NAME>
    ```
-4. Switch to the new profile:
+4. For agent-driven work, set the new profile without changing `[default]`:
    ```shell
-   awsb use <NAME>
+   export AWS_PROFILE=<NAME>
    ```
 
 ### Refresh expired SSO credentials
@@ -71,7 +91,7 @@ description: Use when the user needs to authenticate to AWS, switch AWS profiles
 ```shell
 awsb providers sign-in
 ```
-Omit the provider name to sign in with all registered providers.
+Omit the provider name to sign in with all registered providers. Add `-s` to pick a single provider interactively (`awsb providers sign-in -s`).
 
 ### Export credentials as environment variables
 
@@ -82,7 +102,7 @@ This sets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` 
 
 ## Important notes
 
-- `awsb use` modifies the `[default]` section in `~/.aws/config`, not `~/.aws/credentials`.
+- `awsb use` modifies the `[default]` section in `~/.aws/config`, not `~/.aws/credentials`. Prefer `AWS_PROFILE` over `awsb use` in agent-driven sessions so the user's default profile in parallel sessions is never changed.
 - Profiles are only valid if their linked provider exists and the provider fields match exactly. If `awsb profiles get <NAME>` returns nothing, the profile config may be inconsistent.
 - `awsb providers sign-in` requires the AWS CLI (`aws`) to be installed and available on PATH.
 - `awsb print-env-vars` / `awsb copy-env-vars` call `aws configure export-credentials --format env-no-export` under the hood, so valid cached SSO credentials must already exist.

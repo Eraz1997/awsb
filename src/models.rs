@@ -31,35 +31,46 @@ pub enum ProviderCommands {
     #[command(about = "Add a provider")]
     Add {
         #[arg(short, long, help = "An arbitrary name for the provider")]
-        name: String,
+        name: Option<String>,
         #[arg(short, long, help = "The AWS region of the provider")]
-        region: String,
+        region: Option<String>,
         #[arg(short, long, help = "The SSO start URL of the provider")]
-        url: String,
+        url: Option<String>,
     },
     #[command(about = "Describe a provider")]
     Get {
         #[arg(help = "The provider name")]
-        name: String,
+        name: Option<String>,
     },
     #[command(about = "List available providers")]
     List,
     #[command(about = "Remove a provider")]
     Remove {
         #[arg(help = "The provider name")]
-        name: String,
+        name: Option<String>,
+    },
+    #[command(about = "Edit a provider")]
+    Edit {
+        #[arg(help = "The provider name")]
+        name: Option<String>,
+        #[arg(short, long, help = "The new AWS region of the provider")]
+        region: Option<String>,
+        #[arg(short, long, help = "The new SSO start URL of the provider")]
+        url: Option<String>,
     },
     #[command(about = "Rename a provider")]
     Rename {
         #[arg(help = "The current provider name")]
-        name: String,
+        name: Option<String>,
         #[arg(help = "The new provider name")]
-        new_name: String,
+        new_name: Option<String>,
     },
     #[command(about = "Sign-in and refresh the local AWS credentials")]
     SignIn {
         #[arg(help = "The name of the provider to sign in with, all of them if blank")]
         name: Option<String>,
+        #[arg(short, long, help = "Interactively select a provider to sign in with")]
+        select: bool,
     },
 }
 
@@ -68,35 +79,50 @@ pub enum ProfileCommands {
     #[command(about = "Add a profile")]
     Add {
         #[arg(short, long, help = "An arbitrary name for the profile")]
-        name: String,
+        name: Option<String>,
         #[arg(
             short,
             long,
             help = "The name of the SSO provider to use to authenticate"
         )]
-        provider: String,
+        provider: Option<String>,
         #[arg(short, long, help = "The ID of the AWS account to bind")]
-        account_id: String,
+        account_id: Option<String>,
         #[arg(short, long, help = "The name of the role to authenticate with")]
-        role: String,
+        role: Option<String>,
     },
     #[command(about = "List available profiles")]
     List,
     #[command(about = "Describe a profile")]
     Get {
         #[arg(help = "The profile name")]
-        name: String,
+        name: Option<String>,
+    },
+    #[command(about = "Edit a profile")]
+    Edit {
+        #[arg(help = "The profile name")]
+        name: Option<String>,
+        #[arg(
+            short,
+            long,
+            help = "The name of the SSO provider to authenticate with"
+        )]
+        provider: Option<String>,
+        #[arg(short, long, help = "The ID of the AWS account to bind")]
+        account_id: Option<String>,
+        #[arg(short, long, help = "The name of the role to authenticate with")]
+        role: Option<String>,
     },
     #[command(about = "Remove a profile")]
     Remove {
         #[arg(help = "The profile name")]
-        name: String,
+        name: Option<String>,
     },
     #[command(about = "Rename a profile")]
     Rename {
         #[arg(help = "The current profile name")]
-        name: String,
+        name: Option<String>,
         #[arg(help = "The new profile name")]
-        new_name: String,
+        new_name: Option<String>,
     },
 }

@@ -28,12 +28,15 @@ impl ConfigFileManager {
     }
 
     pub fn get_provider_names(&self) -> Vec<String> {
-        self.document
+        let mut names: Vec<String> = self
+            .document
             .sections()
             .iter()
             .filter_map(|key| key.strip_prefix("sso-session "))
             .map(|name| name.to_string())
-            .collect()
+            .collect();
+        names.sort();
+        names
     }
 
     pub fn get_provider(&self, name: &String) -> Option<Provider> {
@@ -79,6 +82,35 @@ impl ConfigFileManager {
         let key = format!("sso-session {}", name);
         self.document.remove_section(key.as_str());
         self.document.write(self.path.as_str()).ok()
+    }
+
+    pub fn edit_provider(&mut self, name: String, region: String, url: String) -> Option<Provider> {
+        self.get_provider(&name)?;
+        let key = format!("sso-session {}", name);
+        self.document
+            .set(key.as_str(), "sso_region", region.clone().into());
+        self.document
+            .set(key.as_str(), "sso_start_url", url.clone().into());
+
+        for profile_name in self.get_profile_names() {
+            let profile_key = format!("profile {}", profile_name);
+            if self
+                .document
+                .get(profile_key.as_str(), "sso_session")
+                .as_deref()
+                == Some(&name)
+            {
+                self.document
+                    .set(profile_key.as_str(), "sso_region", region.clone().into());
+                self.document
+                    .set(profile_key.as_str(), "region", region.clone().into());
+                self.document
+                    .set(profile_key.as_str(), "sso_start_url", url.clone().into());
+            }
+        }
+
+        self.document.write(self.path.as_str()).ok()?;
+        Some(Provider { name, region, url })
     }
 
     pub fn rename_provider(&mut self, name: String, new_name: String) -> Option<Provider> {
@@ -206,6 +238,37 @@ impl ConfigFileManager {
         let key = format!("profile {}", name);
         self.document.remove_section(key.as_str());
         self.document.write(self.path.as_str()).ok()
+    }
+
+    pub fn edit_profile(
+        &mut self,
+        name: String,
+        provider: Provider,
+        account_id: String,
+        role: String,
+    ) -> Option<Profile> {
+        self.get_profile(&name)?;
+        let key = format!("profile {}", name);
+        self.document
+            .set(key.as_str(), "sso_role_name", role.clone().into());
+        self.document
+            .set(key.as_str(), "sso_session", provider.name.clone().into());
+        self.document
+            .set(key.as_str(), "sso_account_id", account_id.clone().into());
+        self.document
+            .set(key.as_str(), "sso_region", provider.region.clone().into());
+        self.document
+            .set(key.as_str(), "region", provider.region.clone().into());
+        self.document
+            .set(key.as_str(), "sso_start_url", provider.url.clone().into());
+
+        self.document.write(self.path.as_str()).ok()?;
+        Some(Profile {
+            name,
+            provider: provider.name,
+            role,
+            account_id,
+        })
     }
 
     pub fn rename_profile(&mut self, name: String, new_name: String) -> Option<Profile> {
