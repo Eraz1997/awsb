@@ -54,7 +54,7 @@ This selects the profile per-process only and leaves the user's `[default]` prof
 
 ### Switch the default profile (interactive / human-driven)
 
-Use `awsb use` only when the *default* profile itself should change for the whole machine/session:
+Use `awsb use` only when the *default* profile itself should change for the whole machine:
 
 1. List available profiles to find the right name:
    ```shell
