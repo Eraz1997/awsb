@@ -1,3 +1,4 @@
+use crate::commands::prompt::value;
 use crate::constants::{VALID_NAME_REGEX, VALID_REGION_REGEX};
 use crate::error::Error;
 use crate::managers::config_file::ConfigFileManager;
@@ -6,10 +7,14 @@ use url::Url;
 
 pub fn add_provider(
     mut config_file_manager: ConfigFileManager,
-    name: String,
-    region: String,
-    url: String,
+    name: Option<String>,
+    region: Option<String>,
+    url: Option<String>,
 ) -> Result<(), Error> {
+    let name = value("Provider name:", name)?;
+    let region = value("SSO region:", region)?;
+    let url = value("SSO start URL:", url)?;
+
     Url::parse(url.as_str()).map_err(|_| Error::InvalidUrl)?;
     Regex::new(VALID_NAME_REGEX)
         .ok()

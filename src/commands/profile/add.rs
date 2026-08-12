@@ -1,3 +1,4 @@
+use crate::commands::prompt::{provider_name, value};
 use crate::constants::{VALID_ACCOUNT_ID_REGEX, VALID_NAME_REGEX};
 use crate::error::Error;
 use crate::managers::config_file::ConfigFileManager;
@@ -5,11 +6,16 @@ use regex::Regex;
 
 pub fn add_profile(
     mut config_file_manager: ConfigFileManager,
-    name: String,
-    provider: String,
-    role: String,
-    account_id: String,
+    name: Option<String>,
+    provider: Option<String>,
+    role: Option<String>,
+    account_id: Option<String>,
 ) -> Result<(), Error> {
+    let name = value("Profile name:", name)?;
+    let provider = provider_name(&config_file_manager, provider)?;
+    let account_id = value("AWS account ID:", account_id)?;
+    let role = value("AWS role name:", role)?;
+
     Regex::new(VALID_NAME_REGEX)
         .ok()
         .filter(|regex| regex.is_match(name.as_str()))
