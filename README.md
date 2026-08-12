@@ -14,7 +14,7 @@ cargo install --git https://github.com/Eraz1997/awsb
 ## AI Skill 🤖
 
 ```shell
-mkdir -p ~/<path-to>/skills/awsb/SKILL.md
+mkdir -p ~/<path-to>/skills/awsb
 curl -fsSL https://raw.githubusercontent.com/Eraz1997/awsb/main/skills/awsb/SKILL.md \
   -o ~/<path-to>/skills/awsb/SKILL.md
 ```
